@@ -177,7 +177,9 @@ const COLORS = {
   'T':[240,170,60],'t':[104,76,30],'B':[170,90,220],'b':[72,40,96],
   'V':[134,143,154],'v':[62,67,74]
 };
-const COLS = 100;
+// 99 (взаимно простое с длиной генома 50) — иначе стыки организмов складываются в
+// ложный вертикальный «шов» посередине (1D-тор разворачивается в 2D с аляйсингом).
+const COLS = 99;
 const soupCanvas = document.getElementById('soupCanvas');
 const sctx = soupCanvas.getContext('2d');
 let off = document.createElement('canvas'), offctx, imgData;
