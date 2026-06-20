@@ -112,6 +112,8 @@
         <div class="stat"><span class="k">ср. энергия</span><span class="v" id="sEnergy">0</span></div>
         <div class="stat"><span class="k">донаций всего</span><span class="v" id="sDon">0</span></div>
         <div class="stat"><span class="k">реализованная r</span><span class="v" id="sR">—</span></div>
+        <div class="stat"><span class="k">паразиты (в чужой памяти)</span><span class="v" id="sParas" style="color:var(--orange)">0</span></div>
+        <div class="stat"><span class="k">cross-exec всего</span><span class="v" id="sCross">0</span></div>
         <div class="stat"><span class="k">рождений</span><span class="v" id="sBirths">0</span></div>
         <div class="stat"><span class="k">смертей</span><span class="v" id="sDeaths">0</span></div>
       </div>
@@ -239,6 +241,7 @@ function render(f){
   setText('sIntact',s.intact); setText('sDef',s.defector);
   setText('sLen',s.avg_len); setText('sEnergy',s.avg_energy);
   setText('sDon',s.donations); setText('sR', s.realized_r==null?'—':s.realized_r);
+  setText('sParas', s.parasites); setText('sCross', s.cross_exec);
   setText('sBirths',s.births); setText('sDeaths',s.deaths);
   const tot=s.intact+s.defector;
   const fd = tot? s.defector/tot : 0;
@@ -248,7 +251,9 @@ function render(f){
   // фазовый индикатор
   let ph;
   if(s.pop===0) ph='☠ вымирание';
-  else if(tot===0) ph='— нет зрелых';
+  else if(tot===0) ph = s.parasites>0
+        ? '🦠 ПАРАЗИТИЗМ — '+s.parasites+' организмов живут на чужом коде'
+        : '— нет зрелых кооп/предателей (сценарий «предок»: смотрите паразитов и суп)';
   else if(fd>=0.85) ph='😈 ЗЛО ПОБЕДИЛО — предатели вытеснили кооператоров';
   else if(fd<=0.15) ph='😇 ДОБРО ВЫЖИЛО — кооперация устойчива';
   else ph='⚔ сосуществование / борьба';

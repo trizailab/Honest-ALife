@@ -123,6 +123,9 @@ class Sim:
             comp = w.composition(mature_only=True)
             r = w.realized_r()
             s = w.stats()
+            # паразиты: организмы, исполняющие >=30% инструкций в ЧУЖОЙ памяти (cross_exec)
+            parasites = sum(1 for o in w.organisms
+                            if o.age > 0 and o.cross_exec / o.age >= 0.3)
             return {
                 "cells": "".join(cells),
                 "ips": ips,
@@ -132,6 +135,7 @@ class Sim:
                     "deaths": s["deaths"], "donations": s["donations"],
                     "avg_len": s["avg_len"], "avg_energy": s["avg_energy"],
                     "cross_exec": s["cross_exec"], "energy_ok": s["energy_ok"],
+                    "parasites": parasites,
                     "intact": comp["intact"], "defector": comp["defector"],
                     "tagless": comp["tagless"], "both_lost": comp["both_lost"],
                     "variant": comp["variant"],
