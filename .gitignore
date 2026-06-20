@@ -1,0 +1,48 @@
+# --- Python ---
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+dist/
+*.egg-info/
+.eggs/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+# --- Виртуальные окружения ---
+venv/
+.venv/
+env/
+ENV/
+
+# --- Генерируемые артефакты эксперимента (регенерируются скриптами) ---
+experiments/sweep.jsonl
+experiments/sweep_out.txt
+experiments/*.out
+*.jsonl
+
+# --- Логи / рантайм веб-сервера (могут содержать IP/баннер с адресом) ---
+*.log
+webapp/server.log
+nohup.out
+
+# --- Секреты / окружение (на всякий случай — в репозиторий не попадают) ---
+.env
+.env.*
+*.pem
+*.key
+*.p12
+credentials*
+secrets*
+
+# --- Редакторы / ОС ---
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+Thumbs.db

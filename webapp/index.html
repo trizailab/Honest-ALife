@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Honest ALife — природа зла вживую</title>
+<style>
+  :root{
+    --bg:#0a0c12; --panel:#11141d; --panel2:#161a26; --line:#222838;
+    --txt:#dfe4f0; --dim:#8a93a8; --green:#28d278; --red:#eb4646; --orange:#f0aa3c;
+    --purple:#aa5adc; --accent:#5b9bff;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--txt);
+    font:14px/1.45 -apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif}
+  header{padding:12px 18px;border-bottom:1px solid var(--line);
+    display:flex;align-items:center;gap:16px;flex-wrap:wrap}
+  header h1{font-size:16px;margin:0;font-weight:650;letter-spacing:.2px}
+  header .sub{color:var(--dim);font-size:12px}
+  .badges{margin-left:auto;display:flex;gap:8px;flex-wrap:wrap}
+  .badge{font-size:11px;padding:3px 9px;border-radius:20px;border:1px solid var(--line);
+    background:var(--panel2);color:var(--dim)}
+  .badge.ok{color:var(--green);border-color:#1d4d33}
+  .badge.bad{color:var(--red);border-color:#5a2222}
+  .wrap{display:flex;gap:14px;padding:14px;align-items:flex-start;flex-wrap:wrap}
+  .col{display:flex;flex-direction:column;gap:14px}
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:14px}
+  .card h2{margin:0 0 10px;font-size:12px;text-transform:uppercase;letter-spacing:.8px;
+    color:var(--dim);font-weight:600}
+  #soupCanvas{image-rendering:pixelated;width:760px;max-width:100%;border-radius:8px;
+    background:#05060a;display:block}
+  .legend{display:flex;gap:14px;flex-wrap:wrap;margin-top:10px;font-size:12px;color:var(--dim)}
+  .legend span{display:inline-flex;align-items:center;gap:6px}
+  .dot{width:11px;height:11px;border-radius:3px;display:inline-block}
+  .stats{display:grid;grid-template-columns:repeat(2,1fr);gap:8px 18px;min-width:300px}
+  .stat{display:flex;justify-content:space-between;border-bottom:1px solid var(--line);
+    padding:4px 0}
+  .stat .k{color:var(--dim)} .stat .v{font-variant-numeric:tabular-nums;font-weight:600}
+  .big{font-size:26px;font-weight:700;font-variant-numeric:tabular-nums}
+  .frac{display:flex;height:26px;border-radius:6px;overflow:hidden;margin:6px 0 2px;
+    border:1px solid var(--line)}
+  .frac .c{background:var(--green)} .frac .d{background:var(--red)}
+  canvas.chart{width:100%;height:120px;display:block;background:var(--panel2);border-radius:8px}
+  .ctl{display:flex;flex-direction:column;gap:12px;min-width:300px}
+  .row{display:flex;align-items:center;gap:10px}
+  .row label{flex:0 0 128px;color:var(--dim);font-size:12px}
+  .row input[type=range]{flex:1;accent-color:var(--accent)}
+  .row .val{flex:0 0 52px;text-align:right;font-variant-numeric:tabular-nums;font-size:12px}
+  select,button{background:var(--panel2);color:var(--txt);border:1px solid var(--line);
+    border-radius:8px;padding:7px 11px;font-size:13px;cursor:pointer}
+  button:hover,select:hover{border-color:var(--accent)}
+  button.primary{background:var(--accent);color:#06101f;border-color:var(--accent);font-weight:650}
+  .btns{display:flex;gap:8px;flex-wrap:wrap}
+  .toggle{display:flex;align-items:center;gap:8px;cursor:pointer;user-select:none}
+  .switch{width:40px;height:22px;border-radius:20px;background:var(--line);position:relative;
+    transition:.15s}
+  .switch.on{background:var(--green)}
+  .switch::after{content:"";position:absolute;top:2px;left:2px;width:18px;height:18px;
+    border-radius:50%;background:#fff;transition:.15s}
+  .switch.on::after{left:20px}
+  .hint{font-size:11.5px;color:var(--dim);margin-top:2px}
+  .phase{font-size:13px;font-weight:650;padding:8px 10px;border-radius:8px;background:var(--panel2);
+    border:1px solid var(--line);margin-top:4px}
+</style>
+</head>
+<body>
+<header>
+  <h1>🧬 Honest ALife — «природа зла» вживую</h1>
+  <span class="sub">кооператоры vs предатели · вознаграждается только репликация · без платёжной матрицы</span>
+  <div class="badges">
+    <span class="badge" id="bEnergy">C4 энергия: …</span>
+    <span class="badge ok">детерминизм ✓</span>
+    <span class="badge ok">provenance-метрика ✓</span>
+  </div>
+</header>
+
+<div class="wrap">
+  <div class="col">
+    <div class="card">
+      <h2>Суп (память) — раскраска по генотипу</h2>
+      <canvas id="soupCanvas"></canvas>
+      <div class="legend">
+        <span><i class="dot" style="background:#28d278"></i>кооператор (intact)</span>
+        <span><i class="dot" style="background:#eb4646"></i>предатель (falsebeard)</span>
+        <span><i class="dot" style="background:#f0aa3c"></i>tagless</span>
+        <span><i class="dot" style="background:#aa5adc"></i>both-lost</span>
+        <span><i class="dot" style="background:#868f9a"></i>variant</span>
+        <span><i class="dot" style="background:#f7f7ff"></i>IP (исполнение)</span>
+        <span><i class="dot" style="background:#1a1d28"></i>пусто</span>
+      </div>
+    </div>
+    <div class="card">
+      <h2>Динамика</h2>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+        <div><div class="hint">Состав: кооператоры (зел.) vs предатели (красн.)</div>
+          <canvas class="chart" id="chComp"></canvas></div>
+        <div><div class="hint">Доля предателей (метрика «зла»), 0→1</div>
+          <canvas class="chart" id="chFrac"></canvas></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="col">
+    <div class="card">
+      <h2>Состояние</h2>
+      <div class="stats">
+        <div class="stat"><span class="k">шаг</span><span class="v" id="sStep">0</span></div>
+        <div class="stat"><span class="k">популяция</span><span class="v" id="sPop">0</span></div>
+        <div class="stat"><span class="k">кооператоры</span><span class="v" id="sIntact" style="color:var(--green)">0</span></div>
+        <div class="stat"><span class="k">предатели</span><span class="v" id="sDef" style="color:var(--red)">0</span></div>
+        <div class="stat"><span class="k">ср. длина генома</span><span class="v" id="sLen">0</span></div>
+        <div class="stat"><span class="k">ср. энергия</span><span class="v" id="sEnergy">0</span></div>
+        <div class="stat"><span class="k">донаций всего</span><span class="v" id="sDon">0</span></div>
+        <div class="stat"><span class="k">реализованная r</span><span class="v" id="sR">—</span></div>
+        <div class="stat"><span class="k">рождений</span><span class="v" id="sBirths">0</span></div>
+        <div class="stat"><span class="k">смертей</span><span class="v" id="sDeaths">0</span></div>
+      </div>
+      <div class="frac"><div class="c" id="fracC" style="width:50%"></div><div class="d" id="fracD" style="width:50%"></div></div>
+      <div class="phase" id="phase">—</div>
+    </div>
+
+    <div class="card">
+      <h2>Управление (вживую)</h2>
+      <div class="ctl">
+        <div class="row">
+          <label>сценарий</label>
+          <select id="scenario">
+            <option value="mix">микс: кооп. + предатели</option>
+            <option value="pure_coop">чистые кооператоры (+мутации → P2)</option>
+            <option value="ancestor">предок (паразитизм)</option>
+          </select>
+        </div>
+        <label class="toggle" id="locToggle">
+          <span class="switch" id="locSwitch"></span>
+          <span>локальное размещение потомства (высокая r) — «семьи рядом»</span>
+        </label>
+        <div class="row"><label>донат (стоимость C)</label>
+          <input type="range" id="donate" min="0" max="100" step="5" value="40">
+          <span class="val" id="vDonate">40</span></div>
+        <div class="row"><label>радиус доната</label>
+          <input type="range" id="dradius" min="50" max="1000" step="50" value="600">
+          <span class="val" id="vDradius">600</span></div>
+        <div class="row"><label>цена деления D</label>
+          <input type="range" id="divide" min="200" max="400" step="10" value="300">
+          <span class="val" id="vDivide">300</span></div>
+        <div class="row"><label>мутации</label>
+          <input type="range" id="mut" min="0" max="0.05" step="0.002" value="0">
+          <span class="val" id="vMut">0</span></div>
+        <div class="row"><label>скорость</label>
+          <input type="range" id="speed" min="1" max="300" step="1" value="60">
+          <span class="val" id="vSpeed">60</span></div>
+        <div class="btns">
+          <button class="primary" id="btnPause">⏸ Пауза</button>
+          <button id="btnReset">⟲ Рестарт</button>
+          <button id="btnReseed">🎲 Новый seed</button>
+        </div>
+        <div class="hint">Подсказка: в «миксе» включи <b>локальное размещение</b> — кооператоры
+          сбиваются в семьи и донат достаётся своим: добро выживает. Выключи — донат утекает
+          случайным (часто предателям): зло вторгается. Это правило Гамильтона вживую.</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+const COLORS = {
+  '.':[16,18,26],'x':[44,46,58],
+  'C':[40,210,120],'c':[22,92,56],'D':[235,70,70],'d':[96,34,34],
+  'T':[240,170,60],'t':[104,76,30],'B':[170,90,220],'b':[72,40,96],
+  'V':[134,143,154],'v':[62,67,74]
+};
+const COLS = 100;
+const soupCanvas = document.getElementById('soupCanvas');
+const sctx = soupCanvas.getContext('2d');
+let off = document.createElement('canvas'), offctx, imgData;
+
+function setupSoup(L){
+  const rows = Math.ceil(L/COLS);
+  off.width = COLS; off.height = rows;
+  offctx = off.getContext('2d');
+  imgData = offctx.createImageData(COLS, rows);
+  soupCanvas.width = COLS; soupCanvas.height = rows;
+  soupCanvas.style.height = (760*rows/COLS)+'px';
+}
+function drawSoup(cells, ips, L){
+  if(!imgData || imgData.width*imgData.height < L) setupSoup(L);
+  const d = imgData.data;
+  for(let i=0;i<L;i++){
+    const c = COLORS[cells[i]] || COLORS['V'];
+    const j = i*4; d[j]=c[0]; d[j+1]=c[1]; d[j+2]=c[2]; d[j+3]=255;
+  }
+  for(const ip of ips){ const j=ip*4; d[j]=247;d[j+1]=247;d[j+2]=255;d[j+3]=255; }
+  offctx.putImageData(imgData,0,0);
+  sctx.imageSmoothingEnabled=false;
+  sctx.drawImage(off,0,0,soupCanvas.width,soupCanvas.height);
+}
+
+// --- charts ---
+const hist = {step:[],pop:[],intact:[],def:[],frac:[]};
+const HMAX = 600;
+function pushHist(s){
+  const tot = s.intact+s.defector;
+  hist.step.push(s.step); hist.pop.push(s.pop);
+  hist.intact.push(s.intact); hist.def.push(s.defector);
+  hist.frac.push(tot? s.defector/tot : null);
+  for(const k in hist) if(hist[k].length>HMAX) hist[k].shift();
+}
+function chart(id, series){ // series: [{data,color}]
+  const cv=document.getElementById(id); const w=cv.clientWidth,h=cv.clientHeight;
+  if(cv.width!==w){cv.width=w;cv.height=h;}
+  const ctx=cv.getContext('2d'); ctx.clearRect(0,0,w,h);
+  let max=1;
+  for(const s of series) for(const v of s.data) if(v!=null&&v>max) max=v;
+  ctx.strokeStyle='#222838'; ctx.lineWidth=1;
+  for(let g=0;g<=2;g++){const y=h-(h-8)*g/2-4;ctx.beginPath();ctx.moveTo(0,y);ctx.lineTo(w,y);ctx.stroke();}
+  for(const s of series){
+    ctx.strokeStyle=s.color; ctx.lineWidth=1.6; ctx.beginPath();
+    const n=s.data.length; let started=false;
+    for(let i=0;i<n;i++){const v=s.data[i]; if(v==null){started=false;continue;}
+      const x=n>1? i/(n-1)*w : 0; const y=h-4-(h-8)*(v/(s.max||max));
+      if(!started){ctx.moveTo(x,y);started=true;} else ctx.lineTo(x,y);}
+    ctx.stroke();
+  }
+}
+function drawCharts(){
+  chart('chComp',[{data:hist.intact,color:'#28d278'},{data:hist.def,color:'#eb4646'},
+                  {data:hist.pop,color:'#5a6677'}]);
+  chart('chFrac',[{data:hist.frac,color:'#eb4646',max:1}]);
+}
+
+const $=id=>document.getElementById(id);
+function setText(id,v){$(id).textContent=v;}
+
+function render(f){
+  if(!f.cells) return;
+  drawSoup(f.cells,f.ips,f.L);
+  const s=f.stats;
+  setText('sStep',s.step); setText('sPop',s.pop);
+  setText('sIntact',s.intact); setText('sDef',s.defector);
+  setText('sLen',s.avg_len); setText('sEnergy',s.avg_energy);
+  setText('sDon',s.donations); setText('sR', s.realized_r==null?'—':s.realized_r);
+  setText('sBirths',s.births); setText('sDeaths',s.deaths);
+  const tot=s.intact+s.defector;
+  const fd = tot? s.defector/tot : 0;
+  $('fracC').style.width=(100*(1-fd))+'%'; $('fracD').style.width=(100*fd)+'%';
+  const b=$('bEnergy'); b.textContent='C4 энергия: '+(s.energy_ok?'сохранена ✓':'НАРУШЕНА ✗');
+  b.className='badge '+(s.energy_ok?'ok':'bad');
+  // фазовый индикатор
+  let ph;
+  if(s.pop===0) ph='☠ вымирание';
+  else if(tot===0) ph='— нет зрелых';
+  else if(fd>=0.85) ph='😈 ЗЛО ПОБЕДИЛО — предатели вытеснили кооператоров';
+  else if(fd<=0.15) ph='😇 ДОБРО ВЫЖИЛО — кооперация устойчива';
+  else ph='⚔ сосуществование / борьба';
+  $('phase').textContent=ph;
+  pushHist(s); drawCharts();
+  // sync controls to server truth (scenario/seed driven)
+  $('btnPause').textContent = f.params.paused ? '▶ Продолжить' : '⏸ Пауза';
+}
+
+const es=new EventSource('/stream');
+es.onmessage=e=>{ try{render(JSON.parse(e.data));}catch(err){} };
+
+function post(url,obj){fetch(url,{method:'POST',headers:{'Content-Type':'application/json'},
+  body:JSON.stringify(obj||{})});}
+function control(obj){post('/control',obj);}
+
+// sliders
+function bindSlider(id,valId,key,parse){
+  const el=$(id);
+  el.addEventListener('input',()=>{ $(valId).textContent=el.value;
+    control({[key]: parse?parse(el.value):+el.value}); });
+}
+bindSlider('donate','vDonate','donate_amount');
+bindSlider('dradius','vDradius','donate_radius');
+bindSlider('divide','vDivide','divide_cost');
+bindSlider('mut','vMut','copy_mut_rate');
+bindSlider('speed','vSpeed','speed');
+
+let local=false;
+$('locToggle').addEventListener('click',()=>{ local=!local;
+  $('locSwitch').classList.toggle('on',local); control({offspring_local:local}); });
+
+let paused=false;
+$('btnPause').addEventListener('click',()=>{ paused=!paused; control({paused}); });
+$('btnReset').addEventListener('click',()=>{ for(const k in hist)hist[k].length=0;
+  post('/reset',{scenario:$('scenario').value}); });
+$('scenario').addEventListener('change',()=>{ for(const k in hist)hist[k].length=0;
+  post('/reset',{scenario:$('scenario').value}); });
+$('btnReseed').addEventListener('click',()=>{ for(const k in hist)hist[k].length=0;
+  post('/reset',{seed: Math.floor(Math.random()*100000)}); });
+</script>
+</body>
+</html>
