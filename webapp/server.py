@@ -32,6 +32,7 @@ class Sim:
             scenario="mix",            # mix | pure_coop | ancestor
             soup_size=8000, max_organisms=80,
             donate_amount=40, offspring_local=False, donate_radius=600,
+            offspring_radius=40,       # «радиус семьи»: меньше -> плотнее -> выше r
             divide_cost=300, energy_income=1, copy_mut_rate=0.0,
             mortality_rate=1.0 / 8000, seed=1,
         )
@@ -47,7 +48,7 @@ class Sim:
                      divide_cost=p["divide_cost"], child_init_energy=10, energy_max=600,
                      donate_amount=p["donate_amount"], donate_cost=0,
                      donate_radius=p["donate_radius"], offspring_local=p["offspring_local"],
-                     offspring_radius=150, copy_mut_rate=p["copy_mut_rate"],
+                     offspring_radius=p["offspring_radius"], copy_mut_rate=p["copy_mut_rate"],
                      mortality_rate=p["mortality_rate"])
         w = World(cfg, seed=p["seed"])
         sc = p["scenario"]
@@ -83,6 +84,7 @@ class Sim:
                 c.donate_amount = self.params["donate_amount"]
                 c.offspring_local = self.params["offspring_local"]
                 c.donate_radius = self.params["donate_radius"]
+                c.offspring_radius = self.params["offspring_radius"]
                 c.divide_cost = self.params["divide_cost"]
                 c.energy_income = self.params["energy_income"]
                 c.copy_mut_rate = self.params["copy_mut_rate"]

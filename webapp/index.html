@@ -134,13 +134,16 @@
         </div>
         <label class="toggle" id="locToggle">
           <span class="switch" id="locSwitch"></span>
-          <span>локальное размещение потомства (высокая r) — «семьи рядом»</span>
+          <span>локальное размещение потомства — «семьи рядом» (включает родство r)</span>
         </label>
+        <div class="row"><label>радиус семьи</label>
+          <input type="range" id="oradius" min="8" max="400" step="2" value="40">
+          <span class="val" id="vOradius">40</span></div>
         <div class="row"><label>донат (стоимость C)</label>
           <input type="range" id="donate" min="0" max="100" step="5" value="40">
           <span class="val" id="vDonate">40</span></div>
         <div class="row"><label>радиус доната</label>
-          <input type="range" id="dradius" min="50" max="1000" step="50" value="600">
+          <input type="range" id="dradius" min="20" max="1000" step="10" value="600">
           <span class="val" id="vDradius">600</span></div>
         <div class="row"><label>цена деления D</label>
           <input type="range" id="divide" min="200" max="400" step="10" value="300">
@@ -156,9 +159,12 @@
           <button id="btnReset">⟲ Рестарт</button>
           <button id="btnReseed">🎲 Новый seed</button>
         </div>
-        <div class="hint">Подсказка: в «миксе» включи <b>локальное размещение</b> — кооператоры
-          сбиваются в семьи и донат достаётся своим: добро выживает. Выключи — донат утекает
-          случайным (часто предателям): зло вторгается. Это правило Гамильтона вживую.</div>
+        <div class="hint"><b>Добро выживает</b> при <b>высоком родстве r</b>: включи
+          <b>локальное размещение</b>, сделай <b>радиус семьи</b> малым (~15–25) и <b>радиус
+          доната</b> малым (~30–50) — помощь остаётся внутри семьи, «реализованная r» растёт к ~0.3,
+          предатели перестают вытеснять. Большой радиус доната или рыхлые семьи → донат утекает
+          чужим, и <b>зло вторгается</b>. Это правило Гамильтона вживую. Исход вероятностный —
+          жми <b>🎲 Новый seed</b>, чтобы увидеть распределение.</div>
       </div>
     </div>
   </div>
@@ -276,6 +282,7 @@ function bindSlider(id,valId,key,parse){
   el.addEventListener('input',()=>{ $(valId).textContent=el.value;
     control({[key]: parse?parse(el.value):+el.value}); });
 }
+bindSlider('oradius','vOradius','offspring_radius');
 bindSlider('donate','vDonate','donate_amount');
 bindSlider('dradius','vDradius','donate_radius');
 bindSlider('divide','vDivide','divide_cost');
